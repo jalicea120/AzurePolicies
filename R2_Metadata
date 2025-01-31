@@ -1207,4 +1207,4 @@
     "owner": "Shared",
     "title": "Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers",
     "type": "Microsoft.PolicyInsights/policyMetadata"
-  },
+  }
