@@ -20,3 +20,16 @@ New-AzPolicyDefinition -Name $newPolicyName `
   -Mode $existingPolicy.Properties.mode
 
 Get-AzPolicyDefinition | Where-Object { $_.DisplayName -like "Custom Version*" }
+
+
+#Get the initiative using the id
+$initiative = Get-AzPolicySetDefinition -Id "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9"
+
+#Create the copy
+New-AzPolicySetDefinition `
+    -Name "NIST _800_171_V2_Juan" `
+    -DisplayName "NIST 800 171 V2 by Juan" `
+    -Description $initiative.Properties.Description `
+    -PolicyDefinition $([Regex]::Unescape($($initiative.Properties.PolicyDefinitions | ConvertTo-Json -Depth 100))) `
+    -Metadata $($initiative.Properties.Metadata | ConvertTo-Json -Depth 100)  `
+    -Parameter $($initiative.Properties.Parameters | ConvertTo-Json -Depth 100)
