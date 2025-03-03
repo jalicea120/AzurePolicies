@@ -1,30 +1,25 @@
-# Create a new policy name
-$newPolicyName = "Custom_NIST_SP_800-171_R2_3.1.1"
-$newPolicyDisplayName = "Custom Version - NIST SP 800-171 R2 3.1.1"
+# Get the initiative using the ID
+$initiative = Get-AzPolicySetDefinition -Id "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9"
 
-# Modify the policy definition
-$modifiedPolicy = @{
-    properties = @{
-        displayName = $newPolicyDisplayName
-        description = $existingPolicy.Properties.description
-        metadata = $existingPolicy.Properties.metadata
-        policyRule = $existingPolicy.Properties.policyRule
-        mode = $existingPolicy.Properties.mode
-    }
-} | ConvertTo-Json -Depth 10 -Compress
+# Handle metadata null issue
+if ($null -eq $initiative.Properties.Metadata) {
+    $metadataJson = '{"category": "Custom"}'  # Default metadata if null
+} else {
+    $metadataJson = $initiative.Properties.Metadata | ConvertTo-Json -Depth 100 -Compress
+}
 
-New-AzPolicyDefinition -Name $newPolicyName `
-  -DisplayName $newPolicyDisplayName `
-  -Description $existingPolicy.Properties.description `
-  -Policy $modifiedPolicy `
-  -Mode $existingPolicy.Properties.mode
-
-Get-AzPolicyDefinition | Where-Object { $_.DisplayName -like "Custom Version*" }
-
+# Create the copy
+New-AzPolicySetDefinition `
+    -Name "NIST_800_171_V2_Juan" `
+    -DisplayName "NIST 800 171 V2 by Juan" `
+    -Description $initiative.Properties.Description `
+    -PolicyDefinition $([Regex]::Unescape($($initiative.Properties.PolicyDefinitions | ConvertTo-Json -Depth 100))) `
+    -Metadata $metadataJson `
+    -Parameter $($initiative.Properties.Parameters | ConvertTo-Json -Depth 100)
 
 #Get the initiative using the id
 $initiative = Get-AzPolicySetDefinition -Id "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9"
-
+===============
 #Create the copy
 New-AzPolicySetDefinition `
     -Name "NIST _800_171_V2_Juan" `
