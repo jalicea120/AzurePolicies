@@ -1,0 +1,22 @@
+# Create a new policy name
+$newPolicyName = "Custom_NIST_SP_800-171_R2_3.1.1"
+$newPolicyDisplayName = "Custom Version - NIST SP 800-171 R2 3.1.1"
+
+# Modify the policy definition
+$modifiedPolicy = @{
+    properties = @{
+        displayName = $newPolicyDisplayName
+        description = $existingPolicy.Properties.description
+        metadata = $existingPolicy.Properties.metadata
+        policyRule = $existingPolicy.Properties.policyRule
+        mode = $existingPolicy.Properties.mode
+    }
+} | ConvertTo-Json -Depth 10 -Compress
+
+New-AzPolicyDefinition -Name $newPolicyName `
+  -DisplayName $newPolicyDisplayName `
+  -Description $existingPolicy.Properties.description `
+  -Policy $modifiedPolicy `
+  -Mode $existingPolicy.Properties.mode
+
+Get-AzPolicyDefinition | Where-Object { $_.DisplayName -like "Custom Version*" }
